@@ -85,9 +85,11 @@ As there are currenlty no resources in the Pulumi program, only the stack itself
 
 However, the Pulumi program contains an output "outputKey" that is displayed once the command is executed. [Outputs](https://www.pulumi.com/learn/building-with-pulumi/stack-outputs/) can be used to retrieve information from a Pulumi stack like URL from provisioned cloud resources.
 
-### Handle configuration, outputs, and secrets
+### Handle stack configuration, stack outputs, and secrets
 
-1. [Configuration](https://www.pulumi.com/docs/concepts/config/) allows you to configure resources with different settings depending on the stack you are using. A basic use case is to have the pricing tier of a resource in the configuration to have less expensive/powerful machines in the development environmenet than in production. Add a setting named `AppServiceSku` with the value `F1` to the the stack configuration using the command [`pulumi config set`](https://www.pulumi.com/docs/cli/commands/pulumi_config_set/)
+[Configuration](https://www.pulumi.com/docs/concepts/config/) allows you to configure resources with different settings depending on the stack you are using. A basic use case is to have the pricing tier of a resource in the configuration to have less expensive/powerful machines in the development environmenet than in production.
+
+1. Add a setting named `AppServiceSku` with the value `F1` to the the stack configuration using the command [`pulumi config set`](https://www.pulumi.com/docs/cli/commands/pulumi_config_set/)
 
 <details>
   <summary>Command</summary>
@@ -119,7 +121,9 @@ The new setting is displayed in the dev stack configuration file: `Pulumi.dev.ya
 > [!NOTE]  
 > Run `pulumi up -y` (the `-y` option is to automatically approve the preview) to update the stack and verify your code is working as expected. This will not always be specified in the rest of the workshop.
 
-3. Pulumi has built-in supports for [secrets](https://www.pulumi.com/docs/concepts/secrets/#secrets-1) that are encrypted in the state. Add a new secret setting `ExternalApiKey` with the value `SecretToBeKeptSecure` to the configuration and to the outputs.
+Pulumi has built-in supports for [secrets](https://www.pulumi.com/docs/concepts/secrets/#secrets-1) that are encrypted in the state.
+
+3.  Add a new secret setting `ExternalApiKey` with the value `SecretToBeKeptSecure` to the configuration and to the outputs.
 
 <details>
   <summary>Command and code</summary>
@@ -148,7 +152,9 @@ You can see that the secret is masked in the logs and that you have to use the c
 
 ### Configure the program to use the Azure provider
 
-1. [Providers](https://www.pulumi.com/docs/concepts/resources/providers/) are the packages that allow you to provision resources in cloud providers or SaaS. Each resource provider is specific to a cloud provider/SaaS. Add the [Azure Native Provider package](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#installation) to the project.
+[Providers](https://www.pulumi.com/docs/concepts/resources/providers/) are the packages that allow you to provision resources in cloud providers or SaaS. Each resource provider is specific to a cloud provider/SaaS. 
+
+1. Add the [Azure Native Provider package](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#installation) to the project.
 
 <details>
   <summary>Command</summary>
@@ -158,7 +164,9 @@ You can see that the secret is masked in the logs and that you have to use the c
   ```
 </details>
 
-2. Azure providers allows to to configure a default location for Azure resources so that you don't need to specify it each time you create a new resource. Configure the [default location](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#set-configuration-using-pulumi-config) for your Azure resources.
+Azure providers allows to to configure a default location for Azure resources so that you don't need to specify it each time you create a new resource.
+
+2.  Configure the [default location](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#set-configuration-using-pulumi-config) for your Azure resources.
 
 <details>
   <summary>Command</summary>
@@ -173,7 +181,9 @@ You can see that the secret is masked in the logs and that you have to use the c
 
 ### Work with Azure resources
 
-1. You can explore all Azure resources in the [documentation of the Azure API Native Provider](https://www.pulumi.com/registry/packages/azure-native/api-docs/) to find the resources you want to create. Create a [resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/) named `rg-workshop-dev` that will contain the resources you will create next.
+You can explore all Azure resources in the [documentation of the Azure API Native Provider](https://www.pulumi.com/registry/packages/azure-native/api-docs/) to find the resources you want to create. 
+
+1. Create a [resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/) named `rg-workshop-dev` that will contain the resources you will create next.
 
 <details>
   <summary>Code</summary>
@@ -207,10 +217,12 @@ When executing the `pulumi up` command, you will see that pulumi detects there i
 
 When updating the stack, you will see that pulumi detects the resource group needs to be updated.
 
-3. It's a good practice to follow a [naming convention](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming). Update the resource group name to `rg-workshop-dev` for your resource group where:
-  - `rg` is the abbreviation for the resource type "resource group"
-  - `workshop` is the name of the application/workload
-  - `dev` is the name of the environment/stack
+It's a good practice to follow a [naming convention](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming). Like the name rg-workshop-dev where:
+ - `rg` is the abbreviation for the resource type "resource group"
+ - `workshop` is the name of the application/workload
+ - `dev` is the name of the environment/stack
+
+3. Update the resource group name to `rg-workshop-dev` for your resource group.
 
 <details>
   <summary>Code</summary>
@@ -234,7 +246,9 @@ When updating the stack, you will see that pulumi detects the resource group nee
 > [!NOTE]  
 > You have seen that depending on what you do, updating the stack will result in creating, updating, or deleting resources. Instead of executing the `pulumi up` command each time you want to see the result of your changes, you can use the [`pulumi watch`](https://www.pulumi.com/docs/cli/commands/pulumi_watch/) command that will act as [hot reload for your infrastructure code](https://www.techwatching.dev/posts/pulumi-watch) (each time you make a change and save your code file, pulumi will detect it, build the code, and deploy the changes ). You can use that for the rest of the workshop or continue using `pulumi up -y` if you prefer.
 
-4. Sometimes it's not easy to find the correct type for the resource we want to create. You can use the [`pulumi ai web`](https://www.pulumi.com/blog/pulumi-insights-ai-cli/#pulumi-ai-in-the-cli) command to use natural-language prompts to generate Pulumi infrastructure-as-code. Use it to provision a free Web App/App Service.
+Sometimes it's not easy to find the correct type for the resource we want to create. You can use the [`pulumi ai web`](https://www.pulumi.com/blog/pulumi-insights-ai-cli/#pulumi-ai-in-the-cli) command to use natural-language prompts to generate Pulumi infrastructure-as-code. 
+
+4. Use pulumi ai to provision a free Web App/App Service.
 
 <details>
   <summary>Command</summary>
@@ -268,3 +282,41 @@ When updating the stack, you will see that pulumi detects the resource group nee
 
 > [!NOTE]  
 > To access properties from other resources, you can just use variables.
+
+5. Update the infrastructure to use the `AppServiceSku` setting from the configuration instead of hard coding the SKU `F1`.
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+    var appServiceSku = config.Require("AppServiceSku");
+    var appServicePlan = new AppServicePlan($"sp-workshop-{stackName}", new()
+    {
+        ResourceGroupName = resourceGroup.Name,
+        Sku = new SkuDescriptionArgs()
+        {
+            Name = appServiceSku,
+        },
+    });
+  ```
+</details>
+
+Not only does the stack have outputs, but the resources themselves also have outputs, which are properties returned from the cloud provider. Since these values are only known once the resources have been provisioned, there are certain [considerations](https://www.pulumi.com/docs/concepts/inputs-outputs/#outputs) to keep in mind when using them in your program (particularly when performing computations based on an output).
+
+6. Modify the program to make the stack only return one output, that is the URL of the app service.
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+    var appService = new WebApp($"app-workshop-{stackName}", new WebAppArgs
+    {
+        ResourceGroupName = resourceGroup.Name,
+        ServerFarmId = appServicePlan.Id,
+    });
+    return new Dictionary<string, object?>
+    {
+        ["AppServiceUrl"] = Output.Format($"https://{appService.DefaultHostName}")
+    };
+  ```
+</details>
