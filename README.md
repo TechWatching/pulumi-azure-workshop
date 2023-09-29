@@ -49,7 +49,7 @@ If you don't want to use Pulumi Cloud, that's totally fine too, check the docume
 
 ## Pulumi fundamentals
 
-## Create a basic Pulumi project
+### Create a basic Pulumi project
 
 1. Create a new directory
 ```pwsh
@@ -87,13 +87,13 @@ However, the Pulumi program contains an output "outputKey" that is displayed onc
 
 ### Handle configuration, outputs, and secrets
 
-1. [Configuration](https://www.pulumi.com/docs/concepts/config/) allows you to configure resources with different settings depending on the stack you are using. A basic use case is to have the pricing tier of a resource in the configuration to have less expensive/powerful machines in the development environmenet than in production. Add a setting named `AppServiceSku` with the value `Free` to the the stack configuration using the command [`pulumi config set`](https://www.pulumi.com/docs/cli/commands/pulumi_config_set/)
+1. [Configuration](https://www.pulumi.com/docs/concepts/config/) allows you to configure resources with different settings depending on the stack you are using. A basic use case is to have the pricing tier of a resource in the configuration to have less expensive/powerful machines in the development environmenet than in production. Add a setting named `AppServiceSku` with the value `F1` to the the stack configuration using the command [`pulumi config set`](https://www.pulumi.com/docs/cli/commands/pulumi_config_set/)
 
 <details>
   <summary>Command</summary>
   
   ```pwsh
-  pulumi config set AppServiceSku Free
+  pulumi config set AppServiceSku F1
   ```
 </details>
 
@@ -122,7 +122,7 @@ The new setting is displayed in the dev stack configuration file: `Pulumi.dev.ya
 3. Pulumi has built-in supports for [secrets](https://www.pulumi.com/docs/concepts/secrets/#secrets-1) that are encrypted in the state. Add a new secret setting `ExternalApiKey` with the value `SecretToBeKeptSecure` to the configuration and to the outputs.
 
 <details>
-  <summary>Command</summary>
+  <summary>Command and code</summary>
   
   ```pwsh
   pulumi config set --secret ExternalApiKey SecretToBeKeptSecure
@@ -146,7 +146,9 @@ You can see that the secret is masked in the logs and that you have to use the c
 
 ## Provision Azure resources
 
-1. Add the [Azure Native Provider package](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#installation) to the project.
+### Configure the program to use the Azure provider
+
+1. [Providers](https://www.pulumi.com/docs/concepts/resources/providers/) are the packages that allow you to provision resources in cloud providers or SaaS. Each resource provider is specific to a cloud provider/SaaS. Add the [Azure Native Provider package](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#installation) to the project.
 
 <details>
   <summary>Command</summary>
@@ -155,3 +157,114 @@ You can see that the secret is masked in the logs and that you have to use the c
   dotnet add package Pulumi.AzureNative
   ```
 </details>
+
+2. Azure providers allows to to configure a default location for Azure resources so that you don't need to specify it each time you create a new resource. Configure the [default location](https://www.pulumi.com/registry/packages/azure-native/installation-configuration/#set-configuration-using-pulumi-config) for your Azure resources.
+
+<details>
+  <summary>Command</summary>
+  
+  ```pwsh
+  pulumi config set azure-native:location westeurope
+  ```
+</details>
+
+> [!NOTE]  
+> All azure locations can be listed using the following command: `az account list-locations -o table`
+
+### Work with Azure resources
+
+1. You can explore all Azure resources in the [documentation of the Azure API Native Provider](https://www.pulumi.com/registry/packages/azure-native/api-docs/) to find the resources you want to create. Create a [resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/) named `rg-workshop-dev` that will contain the resources you will create next.
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+  var resourceGroup = new ResourceGroup("rg-workshop");   
+  ```
+</details>
+
+When executing the `pulumi up` command, you will see that pulumi detects there is a new resource to create. Apply the update and verify the resource group is created.
+
+> [!NOTE]  
+> You don't have to specify a location for the resource group, by default it will use the location you previously specifed in the configuration.
+
+2. [Configure the resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/#inputs) to have the tag `Type` with the value `Demo` and the tag `ProvisionedBy` with the value `Pulumi`. 
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+  var resourceGroup = new ResourceGroup("workshop", new()
+  {
+      Tags =
+      {
+          { "Type", "Demo" },
+          { "ProvisionedBy", "Pulumi" }
+      }
+  });
+  ```
+</details>
+
+When updating the stack, you will see that pulumi detects the resource group needs to be updated.
+
+3. It's a good practice to follow a [naming convention](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming). Update the resource group name to `rg-workshop-dev` for your resource group where:
+  - `rg` is the abbreviation for the resource type "resource group"
+  - `workshop` is the name of the application/workload
+  - `dev` is the name of the environment/stack
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+    var stackName = Deployment.Instance.StackName;
+    var resourceGroup = new ResourceGroup($"rg-workshop-{stackName}", new()
+    {
+        Tags =
+        {
+            { "Type", "Demo" },
+            { "ProvisionedBy", "Pulumi" }
+        }
+    });
+  ```
+  The stack name is directly retrieved from Pulumi to avoid hardcoding it.
+</details>
+
+When updating the stack, you will see that pulumi detects the resource group needs to be recreated (delete the one with the old name and create a new one with the new name). Indeed, when some input properties of a resource change, it triggers a replacement of the resource. The input properties concerned are always specified in the documentation of each resource.
+
+> [!NOTE]  
+> You have seen that depending on what you do, updating the stack will result in creating, updating, or deleting resources. Instead of executing the `pulumi up` command each time you want to see the result of your changes, you can use the [`pulumi watch`](https://www.pulumi.com/docs/cli/commands/pulumi_watch/) command that will act as [hot reload for your infrastructure code](https://www.techwatching.dev/posts/pulumi-watch) (each time you make a change and save your code file, pulumi will detect it, build the code, and deploy the changes ). You can use that for the rest of the workshop or continue using `pulumi up -y` if you prefer.
+
+4. Sometimes it's not easy to find the correct type for the resource we want to create. You can use the [`pulumi ai web`](https://www.pulumi.com/blog/pulumi-insights-ai-cli/#pulumi-ai-in-the-cli) command to use natural-language prompts to generate Pulumi infrastructure-as-code. Use it to provision a free Web App/App Service.
+
+<details>
+  <summary>Command</summary>
+  
+  ```pwsh
+  pulumi ai web -l C# "Using Azure Native Provider, create a free App Service."
+  ```
+</details>
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+    var appServicePlan = new AppServicePlan($"sp-workshop-{stackName}", new()
+    {
+        ResourceGroupName = resourceGroup.Name,
+        Sku = new SkuDescriptionArgs()
+        {
+            Name = "F1",
+        },
+    });
+
+    var appService = new WebApp($"app-workshop-{stackName}", new WebAppArgs
+    {
+        ResourceGroupName = resourceGroup.Name,
+        ServerFarmId = appServicePlan.Id,
+    });
+  ```
+  An [App Service Plan](https://www.pulumi.com/registry/packages/azure-native/api-docs/web/appserviceplan/) is needed to create an [App Service](https://www.pulumi.com/registry/packages/azure-native/api-docs/web/webapp/). 
+</details>
+
+> [!NOTE]  
+> To access properties from other resources, you can just use variables.
