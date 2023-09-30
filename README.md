@@ -64,6 +64,7 @@ pulumi new -l
 There are several azure templates (prefixed by azure) that are already configured to provision resources to Azure, but for the purpose of this workshop you will start a project from scratch to better understand how everything works.
 
 3. Create a new Pulumi project using an empty template (corresponding to the language of your choice)
+
 ```pwsh
 pulumi new csharp -n PulumiAzureWorkshop -s dev -d "Workshop to learn Pulumi with Azure fundamentals"
 ```
@@ -217,7 +218,7 @@ When executing the `pulumi up` command, you will see that pulumi detects there i
 
 When updating the stack, you will see that pulumi detects the resource group needs to be updated.
 
-It's a good practice to follow a [naming convention](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming). Like the name rg-workshop-dev where:
+It's a good practice to follow a [naming convention](https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/resource-naming). Like the name `rg-workshop-dev` where:
  - `rg` is the abbreviation for the resource type "resource group"
  - `workshop` is the name of the application/workload
  - `dev` is the name of the environment/stack
@@ -319,4 +320,29 @@ Not only does the stack have outputs, but the resources themselves also have out
         ["AppServiceUrl"] = Output.Format($"https://{appService.DefaultHostName}")
     };
   ```
+</details>
+
+Sometimes, you need some data that are not available as properties of a resource. That's exactly what [provider functions](https://www.pulumi.com/docs/concepts/resources/functions/#provider-functions) are for. For instance, the [ListWebAppPublishingCredentials](https://www.pulumi.com/registry/packages/azure-native/api-docs/web/listwebapppublishingcredentials/) function can be use to retrieve the [publishing credentials](https://github.com/projectkudu/kudu/wiki/Deployment-credentials#site-credentials-aka-publish-profile-credentials) of an App Service
+
+7. Add 2 outputs to the stack `PublishingUsername` and `PublishingUserPassword` that are secrets that can be use to deploy a zip package to the App Service.
+
+<details>
+  <summary>Code</summary>
+
+  ```csharp
+    var publishingCredentials = ListWebAppPublishingCredentials.Invoke(new()  
+    {  
+        ResourceGroupName = resourceGroup.Name,  
+        Name = appService.Name  
+    });
+    
+    return new Dictionary<string, object?>
+    {
+        ["AppServiceUrl"] = Output.Format($"https://{appService.DefaultHostName}"),
+        ["PublishingUsername"] = Output.CreateSecret(publishingCredentials.Apply(c => c.PublishingUserName)), 
+        ["PublishingUserPassword"] = Output.CreateSecret(publishingCredentials.Apply(c => c.PublishingPassword)),
+    };
+  ```
+
+  As the function outputs are not marked as secrets, you have to manually do it.
 </details>
