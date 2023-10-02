@@ -1,0 +1,36 @@
+name: infra
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # required for OIDC auth
+  contents: read    # required to perform a checkout
+
+jobs:
+  provision-infra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 6.0.x
+      
+      - name: Install dependencies
+        run: dotnet restore
+        working-directory: infra
+      
+      - name: Provision infrastructure
+        uses: pulumi/actions@v4.4.0
+        id: pulumi
+        with:
+          command: up
+          stack-name: dev
+          work-dir: infra
+        env:
+          ARM_USE_OIDC: true
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }} 
