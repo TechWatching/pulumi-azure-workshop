@@ -1,4 +1,6 @@
 # Initialize git repository with current code
+# Your Pulumi program should be in `infra` directory
+# You should have added the infra.yml workflow file in the `.github\workflows` directory 
 git init
 git add .
 git commit -m "Intialize repository with infrastructure code"
@@ -48,8 +50,8 @@ $pulumiToken = "pul-******************"
 gh secret set PULUMI_ACCESS_TOKEN --body $pulumiToken
 
 # Run wokrflows
-gh workflow run main.yml
-$runId=$(gh run list --workflow=main.yml --json databaseId -q ".[0].databaseId")
+gh workflow run infra.yml
+$runId=$(gh run list --workflow=infra.yml --json databaseId -q ".[0].databaseId")
 gh run watch $runId
 
 # Open the repostory in the browser

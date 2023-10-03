@@ -346,3 +346,9 @@ Sometimes, you need some data that are not available as properties of a resource
 
   As the function outputs are not marked as secrets, you have to manually do it.
 </details>
+
+## Delete a stack
+
+To delete all the resources in the stack you can run the command `pulumi destroy`.
+
+To delete the stack itself with its configuration and deployment history you can run the command `pulumi stack rm dev`.
