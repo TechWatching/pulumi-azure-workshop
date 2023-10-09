@@ -6,7 +6,7 @@ git add .
 git commit -m "Intialize repository with infrastructure code"
 
 # Create a new remote private GitHub repository
-gh repo create --private --source=. --push --json -q ".nameWithOwner"
+gh repo create pulumi-azure-workshop-lab --private --source=. --push
 
 # Retrieve the repository full name (org/repo)
 $repositoryFullName=$(gh repo view --json nameWithOwner -q ".nameWithOwner") 
@@ -17,7 +17,7 @@ $tenantId=$(az account show --query "tenantId" -o tsv)
 
 # Create an App Registration and its associated service principal
 $appId=$(az ad app create --display-name "GitHub Action OIDC for Pulumi Workshop" --query "appId" -o tsv)
-$servicePrincipalId=$(az ad sp create --id $appId)
+$servicePrincipalId=$(az ad sp create --id $appId --query "id" -o tsv)
 
 # Assign the contributor role to the service principal on the subscription
 az role assignment create --role contributor --subscription $subscriptionId --assignee-object-id  $servicePrincipalId --assignee-principal-type ServicePrincipal --scope /subscriptions/$subscriptionId
@@ -49,10 +49,10 @@ gh secret set ARM_CLIENT_ID --body $appId
 $pulumiToken = "pul-******************"
 gh secret set PULUMI_ACCESS_TOKEN --body $pulumiToken
 
-# Run wokrflows
+# Run workflow
 gh workflow run infra.yml
 $runId=$(gh run list --workflow=infra.yml --json databaseId -q ".[0].databaseId")
 gh run watch $runId
 
 # Open the repostory in the browser
-gh repo view --open
+gh repo view -w
