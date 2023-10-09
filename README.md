@@ -114,7 +114,7 @@ The new setting is displayed in the dev stack configuration file: `Pulumi.dev.ya
   return new Dictionary<string, object?>
   {
      ["outputKey"] = "outputValue",
-     ["outputSku"] = appServiceSku
+     ["appServiceSku"] = appServiceSku
   };
   ```
 </details>
@@ -141,8 +141,8 @@ Pulumi has built-in supports for [secrets](https://www.pulumi.com/docs/concepts/
    return new Dictionary<string, object?>
    {
       ["outputKey"] = "outputValue",
-      ["outputSku"] = appServiceSku,
-      ["outputApiKey"] = externalApiKey
+      ["appServiceSku"] = appServiceSku,
+      ["apiKey"] = externalApiKey
    };
   ```
 </details>
@@ -184,13 +184,13 @@ Azure providers allows to to configure a default location for Azure resources so
 
 You can explore all Azure resources in the [documentation of the Azure API Native Provider](https://www.pulumi.com/registry/packages/azure-native/api-docs/) to find the resources you want to create. 
 
-1. Create a [resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/) named `rg-workshop-dev` that will contain the resources you will create next.
+1. Create a [resource group](https://www.pulumi.com/registry/packages/azure-native/api-docs/resources/resourcegroup/) named `rg-workshop` that will contain the resources you will create next.
 
 <details>
   <summary>Code</summary>
 
   ```csharp
-  var resourceGroup = new ResourceGroup("rg-workshop");   
+  var resourceGroup = new ResourceGroup("workshop");   
   ```
 </details>
 
