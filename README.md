@@ -1,4 +1,4 @@
-# Getting Started Provisionning Infrastructure on Azure with Pulumi
+# Getting Started Provisioning Infrastructure on Azure with Pulumi
 
 ## Prerequisites
 
