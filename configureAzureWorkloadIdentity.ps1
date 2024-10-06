@@ -1,15 +1,10 @@
-# Initialize git repository with current code
-# Your Pulumi program should be in `infra` directory
-# You should have added the infra.yml workflow file in the `.github\workflows` directory 
-git init
-git add .
-git commit -m "Initialize repository with infrastructure code"
-
-# Create a new remote private GitHub repository
-gh repo create pulumi-azure-workshop-lab --private --source=. --push
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$PulumiToken
+)
 
 # Retrieve the repository full name (org/repo)
-$repositoryFullName=$(gh repo view --json nameWithOwner -q ".nameWithOwner") 
+$repositoryFullName=$(gh repo view --json nameWithOwner -q ".nameWithOwner")
 
 # Retrieve the current subscription and current tenant identifiers 
 $subscriptionId=$(az account show --query "id" -o tsv)
@@ -44,15 +39,4 @@ az ad app federated-credential create --id $appId --parameters $parameters
 gh secret set ARM_TENANT_ID --body $tenantId
 gh secret set ARM_SUBSCRIPTION_ID --body $subscriptionId
 gh secret set ARM_CLIENT_ID --body $appId
-
-# Replace by your Pulumi token
-$pulumiToken = "pul-******************"
-gh secret set PULUMI_ACCESS_TOKEN --body $pulumiToken
-
-# Run workflow
-gh workflow run infra.yml
-$runId=$(gh run list --workflow=infra.yml --json databaseId -q ".[0].databaseId")
-gh run watch $runId
-
-# Open the repostory in the browser
-gh repo view -w
+gh secret set PULUMI_ACCESS_TOKEN --body $PulumiToken
