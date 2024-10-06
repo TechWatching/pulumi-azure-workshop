@@ -17,7 +17,7 @@ This [page](https://www.pulumi.com/docs/clouds/azure/get-started/begin/) in the 
 
 On Windows for instance, you can set up you environment using PowerShell and Windows Package Manager like this:
 
-```pwsh
+```powershell
 # Install Azure CLI using winget
 winget install -e --id Microsoft.AzureCLI
 
@@ -51,7 +51,10 @@ Log in to your backend using the [pulumi login CLI command](https://www.pulumi.c
 
 <details open>
   <summary>Log in to Pulumi Cloud</summary>
-    `pulumi login`
+
+```powershell
+pulumi login
+```
 </details>
 
 ## Pulumi fundamentals
@@ -59,12 +62,12 @@ Log in to your backend using the [pulumi login CLI command](https://www.pulumi.c
 ### Create a basic Pulumi project
 
 1. Create a new directory for the workshop with a new `infra` directory in it.
-```pwsh
+```powershell
 mkdir pulumi-workshop; cd pulumi-workshop; mkdir infra; cd infra
 ```
 
 2. List the available templates
-```pwsh
+```powershell
 pulumi new -l
 ```
 
@@ -72,8 +75,8 @@ There are several azure templates (prefixed by azure) that are already configure
 
 3. Create a new Pulumi project using an empty template (corresponding to the language of your choice)
 
-```pwsh
-pulumi new csharp -n PulumiAzureWorkshop -s dev -d "Workshop to learn Pulumi with Azure fundamentals"
+```powershell
+pulumi new typescript -n PulumiAzureWorkshop -s dev -d "Workshop to learn Pulumi with Azure fundamentals"
 ```
 
 The `-s dev` option is used to initialize the project with a stack named `dev`. A [stack](https://www.pulumi.com/docs/concepts/stack/#stacks) is an independently configurable instance of a Pulumi program. Stacks are mainly use to have a different instance for each environment (dev, staging, preprod, prod ...). or for [each developer making changes to the infrastructure](https://www.pulumi.com/blog/iac-recommended-practices-developer-stacks-git-branches/#using-developer-stacks).
@@ -102,7 +105,7 @@ Depending on your template, the Pulumi program may contain an output that is dis
 <details>
   <summary>Command</summary>
   
-  ```pwsh
+  ```powershell
   pulumi config set AppServiceSku F1
   ```
 </details>
@@ -148,9 +151,9 @@ Pulumi has built-in supports for [secrets](https://www.pulumi.com/docs/concepts/
 3.  Add a new secret setting `ExternalApiKey` with the value `SecretToBeKeptSecure` to the configuration and to the outputs.
 
 <details>
-  <summary>Command and code</summary>
+  <summary>Command</summary>
 
-```pwsh
+```powershell
 pulumi config set --secret ExternalApiKey SecretToBeKeptSecure
 ```
 </details>
@@ -199,7 +202,7 @@ You can see that the secret is masked in the logs and that you have to use the c
 <details>
   <summary>Command for C#</summary>
   
-```pwsh
+```powershell
 dotnet add package Pulumi.AzureNative
 ```
 </details>
@@ -207,7 +210,7 @@ dotnet add package Pulumi.AzureNative
 <details>
   <summary>Command for TypeScript</summary>
 
-```pwsh
+```powershell
 pnpm add @pulumi/azure-native
 ```
 </details>
@@ -222,7 +225,7 @@ Azure providers allows to configure a default location for Azure resources so th
 <details>
   <summary>Command</summary>
   
-```pwsh
+```powershell
 pulumi config set azure-native:location westeurope
 ```
 </details>
@@ -346,7 +349,7 @@ Sometimes it's not easy to find the correct type for the resource we want to cre
 <details>
   <summary>Command for C#</summary>
   
-```pwsh
+```powershell
 pulumi ai web -l C# "Using Azure Native Provider, create a free App Service."
 ```
 </details>
@@ -354,7 +357,7 @@ pulumi ai web -l C# "Using Azure Native Provider, create a free App Service."
 <details>
   <summary>Command for TypeScript</summary>
 
-```pwsh
+```powershell
 pulumi ai web -l typescript "Using Azure Native Provider, create a free App Service."
 ```
 </details>
@@ -372,7 +375,7 @@ var appServicePlan = new AppServicePlan($"sp-workshop-{stackName}", new()
     },
 });
 
-var appService = new WebApp($"app-workshop-{stackName}", new WebAppArgs
+var appService = new WebApp($"app-workshop-{stackName}", new()
 {
     ResourceGroupName = resourceGroup.Name,
     ServerFarmId = appServicePlan.Id,
@@ -449,6 +452,7 @@ var appService = new WebApp($"app-workshop-{stackName}", new WebAppArgs
     ResourceGroupName = resourceGroup.Name,
     ServerFarmId = appServicePlan.Id,
 });
+
 return new Dictionary<string, object?>
 {
     ["AppServiceUrl"] = Output.Format($"https://{appService.DefaultHostName}")

@@ -22,7 +22,8 @@ You should have completed the [Getting Started Provisionning Infrastructure on A
 
 ## Initialize a new GitHub repository
 
-- In the root directory for this workshop (it should be the parent of the `infra` folder), create a `.github\workflows` folder.
+- Go in the root directory for this workshop (it should be the parent of the `infra` folder), all future shell commands should be executed from this folder. 
+- Create a `.github\workflows` folder.
 - Copy the `infra.yml` workflow file (located alongside these instructions) in this `.github\workflows` folder.
 
 The workflow file contains the pipeline to provision the infrastructure defined in the infra folder. It uses the [Pulumi GitHub Actions](https://github.com/pulumi/actions) that will execute the `pulumi up` command on the `dev` stack. Have a look at the `infra.yml` file to understand what it's doing.
