@@ -513,11 +513,84 @@ export const publishingPassword = pulumi.secret(publishingCredentials.publishing
 As the function outputs are not marked as secrets, you have to manually do it.
 </details>
 
-## Delete a stack
+## Manage stacks
+
+- Use the `pulumi about` command to get some information about the current Pulumi environment.
+It also displays information about the current stack.
+
+### Create a new stack
+
+- Use the [`pulumi stack init`](https://www.pulumi.com/docs/iac/cli/commands/pulumi_stack/) command to create a new `prod` stack.
+
+<details>
+  <summary>Command</summary>
+
+```powershell
+pulumi stack init prod
+```
+</details>
+
+You will be automatically switched to his new stack. You can switch back to the previous stack using the `pulumi stack select` command.
+
+- Switch back to the `dev` stack
+
+<details>
+  <summary>Command</summary>
+
+```powershell
+pulumi stack select dev
+```
+</details>
+
+- List the different stacks with the `pulumi stack ls` command.
+
+### Provision the infrastructure for a new environment
+
+- Select the `prod` stack and try to provision the infrastructure for this stack. It should fail because some configuration is missing.
+
+<details>
+  <summary>Command</summary>
+
+```powershell
+pulumi stack select prod
+pulumi up
+```
+</details>
+
+- Add the missing configuration and provision the infrastructure
+
+<details>
+  <summary>Command</summary>
+
+```powershell
+pulumi config set azure-native:location westeurope
+pulumi config set --secret ExternalApiKey SecretToBeKeptVerySecure
+pulumi config set AppServiceSku F1
+pulumi up
+```
+</details>
+
+> [!NOTE]
+> You are on another environment so you don't have to set the same values. You can use another sku, another default azure location, another secret value... 
+
+
+### Delete resources and stack
 
 To delete all the resources in the stack you can run the command `pulumi destroy`.
 
-If you want to delete the stack itself with its configuration and deployment history you can run the command `pulumi stack rm dev`.
+- Delete the resources on the `prod` environment.
+
+If you want to delete the stack itself with its configuration and deployment history you can run the command `pulumi stack rm` command.
+
+- Delete the `prod` stack
+
+<details>
+  <summary>Command</summary>
+
+```powershell
+pulumi stack rm prod
+```
+</details>
 
 ## Next
 
