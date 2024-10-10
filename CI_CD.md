@@ -141,3 +141,26 @@ gh repo view -w
 
 > [!NOTE]  
 > Instead of using scripts to create and configure the GitHub repository and the workload identity federation, we could also have used Pulumi like explained in this [article](https://www.techwatching.dev/posts/azure-ready-github-repository)
+
+## Use stack outputs
+
+- Check the [Pulumi GitHub Actions](https://github.com/pulumi/actions) documentation and add a step in the workflow to echo the `appServiceUrl` stack output.
+
+<details>
+  <summary>GitHub Actions workflow</summary>
+
+```yaml
+- name: Provision infrastructure
+  uses: pulumi/actions@v6
+  id: pulumi
+  with:
+    command: up
+    stack-name: dev
+    work-dir: infra
+  env:
+    PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
+- run: echo "App service url is ${{ steps.pulumi.outputs.appServiceUrl }}"
+```
+
+</details>
