@@ -96,6 +96,35 @@ As there are currently no resources in the Pulumi program, only the stack itself
 
 Depending on your template, the Pulumi program may contain an output that is displayed once the command is executed. [Outputs](https://www.pulumi.com/docs/iac/concepts/stacks/#outputs) can be used to retrieve information from a Pulumi stack like URL from provisioned cloud resources.
 
+- If there is not existing output, add an output `outputKey` with a value `outputValue`.
+
+<details>
+  <summary>Code in C#</summary>
+
+```csharp
+return new Dictionary<string, object?>
+{
+   ["outputKey"] = "outputValue"
+};
+```
+</details>
+
+<details>
+  <summary>Code in TypeScript</summary>
+
+```typescript
+export const outputKey = "outputValue"
+```
+</details>
+
+<details>
+  <summary>Code in Python</summary>
+
+```typescript
+pulumi.export("outputKey", "outputValue")
+```
+</details>
+
 ### Handle stack configuration, stack outputs, and secrets
 
 [Configuration](https://www.pulumi.com/docs/concepts/config/) allows you to configure resources with different settings depending on the stack you are using. A basic use case is to have the pricing tier of a resource in the configuration to have less expensive/powerful machines in the development environment than in production.
@@ -140,6 +169,22 @@ const appServiceSkuSetting = config.get("AppServiceSku")
 
 export const outputKey = "outputValue"
 export const appServiceSku = appServiceSkuSetting
+```
+</details>
+
+<details>
+  <summary>Code to retrieve the configuration in Python</summary>
+
+```python
+import pulumi 
+from pulumi import Config
+
+
+config = Config()
+app_service_sku = config.get("AppServiceSku")
+
+pulumi.export("outputKey", "outputValue")
+pulumi.export("appServiceSku", app_service_sku)
 ```
 </details>
 
@@ -189,6 +234,20 @@ export const apiKey = externalApiKey
 ```
 </details>
 
+<details>
+  <summary>Code in Python</summary>
+
+```python
+config = Config()
+app_service_sku = config.get("AppServiceSku")
+external_api_key = config.require_secret("ExternalApiKey")
+
+pulumi.export("outputKey", "outputValue")
+pulumi.export("appServiceSku", app_service_sku)
+pulumi.export("apiKey", external_api_key)
+```
+</details>
+
 You can see that the secret is masked in the logs and that you have to use the command `pulumi stack output --show-secrets` to display it.
 
 ## Provision Azure resources
@@ -212,6 +271,16 @@ dotnet add package Pulumi.AzureNative
 
 ```powershell
 pnpm add @pulumi/azure-native
+```
+</details>
+
+<details>
+  <summary>Command for Python</summary>
+
+```powershell
+pip install pulumi-azure-native
+## Or if you use poetry :
+## poetry add pulumi-azure-native
 ```
 </details>
 
@@ -259,6 +328,15 @@ const resourceGroup = new ResourceGroup("workshop");
 ```
 </details>
 
+<details>
+  <summary>Code in Python</summary>
+
+```python
+import pulumi_azure_native as azure_native
+
+resource_group = azure_native.resources.ResourceGroup("workshop")
+```
+</details>
     
 When executing the `pulumi up` command, you will see that pulumi detects there is a new resource to create. Apply the update and verify the resource group is created.
 
@@ -295,6 +373,19 @@ const resourceGroup = new ResourceGroup("workshop", {
 ```
 </details>
 
+<details>
+  <summary>Code in Python</summary>
+
+```python
+resource_group = azure_native.resources.ResourceGroup(
+    "workshop",
+    tags={
+        "Type": "Demo",
+        "ProvisionedBy": "Pulumi",
+    }
+)
+```
+</details>
 
 When updating the stack, you will see that pulumi detects the resource group needs to be updated.
 
@@ -337,6 +428,24 @@ const resourceGroup = new ResourceGroup(`rg-workshop-${stackName}`, {
 The stack name is directly retrieved from Pulumi to avoid hardcoding it.
 </details>
 
+<details>
+  <summary>Code in Python</summary>
+
+```python
+stack_name = pulumi.get_stack()
+
+resource_group = azure_native.resources.ResourceGroup(
+    f"rg-workshop-{stack_name}",
+    tags={
+        "Type": "Demo",
+        "ProvisionedBy": "Pulumi",
+    }
+)
+```
+The stack name is directly retrieved from Pulumi to avoid hardcoding it.
+</details>
+
+
 When updating the stack, you will see that pulumi detects the resource group needs to be recreated (delete the one with the old name and create a new one with the new name). Indeed, when some input properties of a resource change, it triggers a replacement of the resource. The input properties concerned are always specified in the documentation of each resource.
 
 > [!NOTE]  
@@ -363,7 +472,15 @@ pulumi ai web -l typescript "Using Azure Native Provider, create a free App Serv
 </details>
 
 <details>
-  <summary>Code</summary>
+  <summary>Command for Python</summary>
+
+```powershell
+pulumi ai web -l python "Using Azure Native Provider, create a free App Service."
+```
+</details>
+
+<details>
+  <summary>Code in C#</summary>
 
 ```csharp
 var appServicePlan = new AppServicePlan($"sp-workshop-{stackName}", new()
@@ -385,22 +502,42 @@ var appService = new WebApp($"app-workshop-{stackName}", new()
 </details>
 
 <details>
-  <summary>Code</summary>
+  <summary>Code in TypeScript</summary>
 
 ```typescript
-const appServicePlan = new AppServicePlan("appServicePlan", {
+const appServicePlan = new AppServicePlan(`sp-workshop-${stackName}`, {
   resourceGroupName: resourceGroup.name,
   sku: {
     name: "F1",
   },
 });
 
-const appService = new WebApp("appService", {
+const appService = new WebApp(`app-workshop-${stackName}`, {
   resourceGroupName: resourceGroup.name,
   serverFarmId: appServicePlan.id,
 });
 ```
 An [App Service Plan](https://www.pulumi.com/registry/packages/azure-native/api-docs/web/appserviceplan/) is needed to create an [App Service](https://www.pulumi.com/registry/packages/azure-native/api-docs/web/webapp/).
+</details>
+
+<details>
+  <summary>Code in Python</summary>
+
+```python
+app_service_plan = azure_native.web.AppServicePlan(
+    f"sp-workshop-{stack_name}",
+    resource_group_name=resource_group.name
+    sku=azure_native.web.SkuDescriptionArgs(
+        name="F1"
+    )
+)
+
+app_service = azure_native.web.WebApp(
+    f"app-workshop-{stack_name}",
+    resource_group_name=resource_group.name,
+    server_farm_id=app_service_plan.id
+)
+```
 </details>
 
 > [!NOTE]  
@@ -438,6 +575,20 @@ const appServicePlan = new AppServicePlan("appServicePlan", {
 ```
 </details>
 
+<details>
+  <summary>Code in Python</summary>
+
+```python
+app_service_sku = config.require("AppServiceSku")
+app_service_plan = azure_native.web.AppServicePlan(
+    f"sp-workshop-{stack_name}",
+    resource_group_name=resource_group.name,
+    sku=azure_native.web.SkuDescriptionArgs(
+        name=app_service_sku
+    )
+)
+```
+</details>
 
 Not only does the stack have outputs, but the resources themselves also have outputs, which are properties returned from the cloud provider. Since these values are only known once the resources have been provisioned, there are certain [considerations](https://www.pulumi.com/docs/concepts/inputs-outputs/#outputs) to keep in mind when using them in your program (particularly when performing computations based on an output).
 
@@ -470,6 +621,20 @@ const appService = new WebApp("appService", {
 });
 
 export const appServiceUrl = pulumi.interpolate`https://${appService.defaultHostName}`;
+```
+</details>
+
+<details>
+  <summary>Code in Python</summary>
+
+```python
+app_service = azure_native.web.WebApp(
+    f"app-workshop-{stack_name}",
+    resource_group_name=resource_group.name,
+    server_farm_id=app_service_plan.id
+)
+
+pulumi.export("app_service_url", app_service.default_host_name.apply(lambda hostname: f"http://{hostname}"))
 ```
 </details>
 
@@ -509,6 +674,22 @@ const publishingCredentials = listWebAppPublishingCredentialsOutput({
 export const appServiceUrl = pulumi.interpolate`https://${appService.defaultHostName}`;
 export const publishingUsername = pulumi.secret(publishingCredentials.publishingUserName)
 export const publishingPassword = pulumi.secret(publishingCredentials.publishingPassword)
+```
+As the function outputs are not marked as secrets, you have to manually do it.
+</details>
+
+<details>
+  <summary>Code in Python</summary>
+
+```python
+publishing_credentials = azure_native.web.list_web_app_publishing_credentials(
+    resource_group_name=resource_group.name,
+    name=app_service.name
+)
+
+pulumi.export("app_service_url", app_service.default_host_name.apply(lambda hostname: f"http://{hostname}"))
+pulumi.export("publishing_username", Output.secret(publishing_credentials.publishing_user_name))
+pulumi.export("publishing_userpassword", Output.secret(publishing_credentials.publishing_password))
 ```
 As the function outputs are not marked as secrets, you have to manually do it.
 </details>
