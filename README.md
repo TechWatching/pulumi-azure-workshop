@@ -4,9 +4,9 @@
 
 ### Installations & configurations
 
-- Azure Subscription
-- Azure CLI
-- Pulumi CLI
+- [Azure Subscription](https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account)
+- [Azure CLI](https://github.com/azure/azure-cli/releases)
+- [Pulumi CLI](https://www.pulumi.com/docs/iac/download-install/#download-install-pulumi)
 - Your preferred language runtime
 - Your favorite IDE
 
@@ -15,7 +15,10 @@ This [page](https://www.pulumi.com/docs/clouds/azure/get-started/begin/) in the 
 > [!NOTE]  
 > You can use the OS, language, and IDE you want for this workshop. Yet for the sake of simplicity, the samples in the tutorial won't cover every possible configuration. That should not prevent you from choosing the technologies and tools you are already familiar with to complete this workshop.
 
-On Windows for instance, you can set up you environment using PowerShell and Windows Package Manager like this:
+<details>
+  <summary>Example on Windows with Winget</summary>
+
+On Windows for instance, you can set up your environment using PowerShell and Windows Package Manager like this:
 
 ```powershell
 # Install Azure CLI using winget
@@ -24,6 +27,44 @@ winget install -e --id Microsoft.AzureCLI
 # Install Pulumi CLI using winget
 winget install -e --id=Pulumi.Pulumi
 
+# (Optional) Install the .NET SDK
+winget install Microsoft.DotNet.SDK.8
+```
+</details>
+
+<details>
+  <summary>Example on Linux with simple script</summary>
+
+On Linux for instance, you can set up your environment using this script:
+
+```bash
+# Install Azure CLI
+curl -L https://aka.ms/InstallAzureCli | bash
+
+# Install Pulumi CLI
+curl -fsSL https://get.pulumi.com | sh
+```
+</details>
+
+<details>
+  <summary>Example on MacOS with homebrew</summary>
+
+On MacOS for instance, you can set up your environment using homebrew:
+
+```bash
+# Install Azure CLI using homebrew
+brew install azure-cli
+
+# Install Pulumi CLI using homebrew
+brew install pulumi/tap/pulumi
+```
+</details>
+
+Once the Azure CLI is installed:
+<details>
+  <summary>Log in to Azure and select your Azure subscription</summary> 
+
+```powershell
 # Log in to Azure
 # You can specify the -t option with your tenant identifier if you have multiple tenants
 az login
@@ -34,10 +75,10 @@ az account list --query "[].{id:id, name:name}"
 # (Optional) Set the correct subscription identifier, "79400867-f366-4ec9-84ba-d1dca756beb5 in the example below
 az account set -s 79400867-f366-4ec9-84ba-d1dca756beb5
 az account show
-
-# (Optional) Install the .NET SDK
-winget install Microsoft.DotNet.SDK.8
 ```
+
+</details>
+
 
 ### Choose a backend
 
@@ -45,7 +86,7 @@ As Pulumi is a declarative IaC solution that uses a state to manage the cloud re
 
 The most convenient way of doing this workshop without worrying about configuring a backend or an encryption provider is to use Pulumi Cloud which is free for individuals. You can just create an account [here](https://app.pulumi.com/signup) (or sign in using your GitHub/GitLab account) and that's it.
 
-If you don't want to use Pulumi Cloud, that's totally fine too, check the documentation or this [article](https://www.techwatching.dev/posts/pulumi-azure-backend) that demonstrates how to use Pulumi with Azure Blob Storage as the backend  and Azure Key Vault as the encryption provider (script to configure these resources is available at the end of the article).
+If you don't want to use Pulumi Cloud, that's totally fine too, check the [documentation](https://www.pulumi.com/docs/iac/concepts/state-and-backends/#using-a-self-managed-backend) to use a self-managed backend and another encryption provider. You can also check this [article](https://www.techwatching.dev/posts/pulumi-azure-backend) that demonstrates how to use Pulumi with Azure Blob Storage as the backend and Azure Key Vault as the encryption provider (script to configure these resources is available at the end of the article).
 
 Log in to your backend using the [pulumi login CLI command](https://www.pulumi.com/docs/iac/cli/commands/pulumi_login/)
 
@@ -54,6 +95,14 @@ Log in to your backend using the [pulumi login CLI command](https://www.pulumi.c
 
 ```powershell
 pulumi login
+```
+</details>
+
+<details>
+  <summary>Log in to local filesystem backend</summary>
+
+```powershell
+pulumi login --local
 ```
 </details>
 
@@ -777,3 +826,4 @@ pulumi stack rm prod
 
 To continue this lab and see more advanced features, you can check the next parts:
 - [Use Pulumi in CI/CD Pipelines with GitHub Actions](/CI_CD.md)
+- [Use existing infrastructure](/Existing%20infrastructure.md)
