@@ -69,36 +69,18 @@ git commit -m "Initialize repository with infrastructure code"
 gh repo create pulumi-azure-workshop-lab --private --source=. --push
 ```
 
-## Create the identity in Microsoft Entra ID for the GitHub Actions workflow and register the configuration in the GitHub Secrets 
+## Add the Pulumi access token to the Github Actions secrets 
 
 - Create a Pulumi [access token](https://www.pulumi.com/docs/pulumi-cloud/access-management/access-tokens/) from your Pulumi account to be able to interact with the Pulumi Cloud backend of your project from the pipeline.
 
 > [!NOTE]
 > You could also use OpenID Connect to authenticate to your Pulumi account instead of relying on a personal access token. You can check [this article](https://www.pulumi.com/docs/pulumi-cloud/access-management/oidc/client/github/) to see how to do that.
 
-- Copy the `configureAzureWorkloadIdentity.ps1` or the `configureAzureWorkloadIdentity.sh`script (depending on your preference) in your repository folder.
+- Run the following command with your access token instead of `$PulumiToken`
 
-- Replace 'pul-********' by your access token, and execute the `configureAzureWorkloadIdentity` script that will configure everything needed for the pipeline to provision the infrastructure in Azure:
-
-<details open>
-  <summary>Command in PowerShell</summary>
-
-```powershell
-.\configureAzureWorkloadIdentity.ps1 -PulumiToken 'pul-********'
-```
-</details>
-
-<details open>
-  <summary>Command in Bash</summary>
-
-(first, make the script executable by running `chmod +x configureAzureWorkloadIdentity.sh`) 
 ```bash
-./configureAzureWorkloadIdentity.sh --PulumiToken='pul-********'
+gh secret set PULUMI_ACCESS_TOKEN --body "$PulumiToken"`
 ```
-</details>
-
-> [!NOTE]
-> The script configures an Azure App Registration and its federated identity credentials in Microsoft Entra Id. That will allow the GitHub Actions workflow to authenticate to Azure from the main branch of this GitHub repository. The script will also register the GitHub Secrets for the federated identity that will be used by the GitHub Actions workflow. Because this does not rely on a service principal secret, it's a more secure way of authenticating to Azure from a CI/CD pipeline. Check the [documentation](https://learn.microsoft.com/en-us/entra/workload-id/workload-identity-federation#how-it-works) if you want to better understand how Workload Identity Federation works.
 
 ## Run the workflow to provision Azure resources
 

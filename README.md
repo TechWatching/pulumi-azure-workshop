@@ -91,10 +91,10 @@ If you don't want to use Pulumi Cloud, that's totally fine too, check the [docum
 Log in to your backend using the [pulumi login CLI command](https://www.pulumi.com/docs/iac/cli/commands/pulumi_login/)
 
 <details open>
-  <summary>Log in to Pulumi Cloud</summary>
+  <summary>Log in to Pulumi Cloud bdxio2024 organization</summary>
 
 ```powershell
-pulumi login
+pulumi login --default-org bdxio2024
 ```
 </details>
 
@@ -125,10 +125,10 @@ There are several azure templates (prefixed by azure) that are already configure
 3. Create a new Pulumi project using an empty template (corresponding to the language of your choice)
 
 ```powershell
-pulumi new typescript -n PulumiAzureWorkshop -s dev -d "Workshop to learn Pulumi with Azure fundamentals"
+pulumi new typescript -n PulumiAzureWorkshopAN -s bdxio2024/dev -d "Workshop to learn Pulumi with Azure fundamentals"
 ```
 
-The `-s dev` option is used to initialize the project with a stack named `dev`. A [stack](https://www.pulumi.com/docs/concepts/stack/#stacks) is an independently configurable instance of a Pulumi program. Stacks are mainly use to have a different instance for each environment (dev, staging, preprod, prod ...). or for [each developer making changes to the infrastructure](https://www.pulumi.com/blog/iac-recommended-practices-developer-stacks-git-branches/#using-developer-stacks).
+The `-s bdxio2024/dev` option is used to initialize the project with a stack named `dev` in the bdxio2024 Pulumi Cloud organization. A [stack](https://www.pulumi.com/docs/concepts/stack/#stacks) is an independently configurable instance of a Pulumi program. Stacks are mainly use to have a different instance for each environment (dev, staging, preprod, prod ...). or for [each developer making changes to the infrastructure](https://www.pulumi.com/blog/iac-recommended-practices-developer-stacks-git-branches/#using-developer-stacks).
 
 > [!NOTE]  
 > If you forget to log in before, you will be prompted to log in to Pulumi Cloud when running this command. Just use your GitHub/GitLab account or the credentials of the account you previously created. If you use a self-hosted backend, log in with the appropriate backend url before running the `pulumi new` command.
@@ -354,6 +354,15 @@ pulumi config set azure-native:location westeurope
 3. Ensure you are correctly logged in the azure CLI using the `az account show` command. Otherwise, use the `az login` command.  
 
 ### Work with Azure resources
+
+0. Modify the `Pulumi.dev.yaml` file to specify to use the configuration from the Pulumi ESC environment `pulumi-workshop/conference`. This Pulumi ESC environment is already configured to authenticate to the correct Azure subscription.
+
+```yaml
+environment:
+  - pulumi-workshop/conference
+config:
+  PulumiAzureWorkshop:AppServiceSku: F1
+```
 
 You can explore all Azure resources in the [documentation of the Azure API Native Provider](https://www.pulumi.com/registry/packages/azure-native/api-docs/) to find the resources you want to create. 
 
@@ -756,7 +765,7 @@ It also displays information about the current stack.
   <summary>Command</summary>
 
 ```powershell
-pulumi stack init prod
+pulumi stack init bdxio2024/prod
 ```
 </details>
 
@@ -768,7 +777,7 @@ You will be automatically switched to his new stack. You can switch back to the 
   <summary>Command</summary>
 
 ```powershell
-pulumi stack select dev
+pulumi stack select bdxio2024/dev
 ```
 </details>
 
@@ -782,7 +791,7 @@ pulumi stack select dev
   <summary>Command</summary>
 
 ```powershell
-pulumi stack select prod
+pulumi stack select bdxio2024/prod
 pulumi up
 ```
 </details>
@@ -818,7 +827,7 @@ If you want to delete the stack itself with its configuration and deployment his
   <summary>Command</summary>
 
 ```powershell
-pulumi stack rm prod
+pulumi stack rm bdxio2024/prod
 ```
 </details>
 

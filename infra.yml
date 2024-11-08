@@ -18,11 +18,8 @@ jobs:
         id: pulumi
         with:
           command: up
-          stack-name: dev
+          stack-name: bdxio2024/dev
           work-dir: infra
         env:
           ARM_USE_OIDC: true
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-          ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-          ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-          ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }} 
